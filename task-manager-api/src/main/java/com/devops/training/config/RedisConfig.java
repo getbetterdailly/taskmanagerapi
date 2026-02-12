@@ -42,8 +42,10 @@ public class RedisConfig {
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         log.info("Configuring Redis connection - Host: {}, Port: {}", redisHost, redisPort);
+        
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(redisHost, redisPort);
         
+        // set password if provided
         if (redisPassword != null && !redisPassword.isEmpty()) {
             config.setPassword(redisPassword);
         }
@@ -56,11 +58,11 @@ public class RedisConfig {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         
-        // Use String serializer for keys
+        // string serializer for keys
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         
-        // Use JSON serializer for values
+        // json serializer for values
         GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper());
         template.setValueSerializer(serializer);
         template.setHashValueSerializer(serializer);
@@ -76,9 +78,14 @@ public class RedisConfig {
         
         RedisCacheConfiguration cacheConfig = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofSeconds(cacheTtl))
-                .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-                        new GenericJackson2JsonRedisSerializer(objectMapper())));
+                .serializeKeysWith(
+                    RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer())
+                )
+                .serializeValuesWith(
+                    RedisSerializationContext.SerializationPair.fromSerializer(
+                        new GenericJackson2JsonRedisSerializer(objectMapper())
+                    )
+                );
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(cacheConfig)
@@ -87,9 +94,10 @@ public class RedisConfig {
 
     private ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
+        // support for LocalDateTime and other java.time classes
         mapper.registerModule(new JavaTimeModule());
         
-        // Enable type information for polymorphic types
+        // type info for polymorphic types - needed for proper deserialization
         mapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
                         .allowIfBaseType(Object.class)

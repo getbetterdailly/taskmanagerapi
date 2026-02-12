@@ -340,24 +340,120 @@ task-manager-api/
 └── README.md
 ```
 
-## 🚢 Next Steps (DevOps Journey)
+## 🛣️ Your DevOps Journey
 
-1. ✅ **Local Setup** - You are here!
-2. 🐳 **Docker** - Containerize the application
-3. 🐙 **Docker Compose** - Multi-container setup
-4. 🔄 **Jenkins** - CI/CD pipeline
-5. ☁️ **Terraform** - Infrastructure as Code
-6. ⚓ **Kubernetes** - Container orchestration
-7. 📦 **Helm** - Kubernetes package manager
-8. 🔁 **ArgoCD** - GitOps deployment
+This same codebase will be deployed to:
+1. ✅ **Local** (H2 + local Redis) ← Start here
+2. 🐳 **Docker** (Single container)
+3. 🐙 **Docker Compose** (Multi-container with PostgreSQL + Redis)
+4. ⚓ **Kubernetes** (Orchestrated deployment with replicas)
+5. 📦 **Helm** (Kubernetes package manager)
+6. 🔄 **Jenkins** (CI/CD pipeline)
+7. ☁️ **Terraform** (Infrastructure as Code)
+8. 🔁 **ArgoCD** (GitOps continuous deployment)
 
-## 📄 License
+Each stage teaches configuration management for that environment!
 
-This project is created for DevOps training purposes.
+---
 
-## 🤝 Contributing
+## 🐳 Docker & Kubernetes Deployment
 
-This is a training project. Feel free to fork and experiment!
+### Docker Quick Start
+
+```bash
+# Build image
+docker build -t task-manager-api:latest .
+
+# Run container
+docker run -d -p 8080:8080 \
+  -e SPRING_PROFILE=local \
+  -e CACHE_ENABLED=false \
+  task-manager-api:latest
+```
+
+### Docker Compose
+
+```bash
+# Start all services (app + PostgreSQL + Redis)
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+```
+
+### Kubernetes Deployment
+
+```bash
+# Using the deployment script (recommended)
+./deploy.sh all
+
+# Or manually
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/postgres-deployment.yaml
+kubectl apply -f k8s/redis-deployment.yaml
+kubectl apply -f k8s/app-deployment.yaml
+kubectl apply -f k8s/app-service.yaml
+
+# Access the application
+kubectl port-forward svc/task-manager-service-internal 8080:8080 -n task-manager
+```
+
+For detailed deployment instructions, see:
+- **[DOCKER_K8S_GUIDE.md](DOCKER_K8S_GUIDE.md)** - Complete deployment guide
+- **[K8S_QUICK_REFERENCE.md](K8S_QUICK_REFERENCE.md)** - Kubectl cheat sheet
+- **[DOCKER_K8S_EXERCISES.md](DOCKER_K8S_EXERCISES.md)** - Hands-on training exercises
+
+---
+
+## 📁 Project Structure (Updated)
+
+```
+task-manager-api/
+├── src/                                    # Application source code
+│   ├── main/
+│   │   ├── java/com/devops/training/
+│   │   │   ├── TaskManagerApplication.java
+│   │   │   ├── config/
+│   │   │   ├── controller/
+│   │   │   ├── service/
+│   │   │   ├── repository/
+│   │   │   ├── entity/
+│   │   │   ├── dto/
+│   │   │   └── exception/
+│   │   └── resources/
+│   │       ├── application.yml            # Main configuration
+│   │       ├── application-local.yml      # Local profile
+│   │       ├── application-docker.yml     # Docker profile
+│   │       └── application-k8s.yml        # Kubernetes profile
+├── k8s/                                   # Kubernetes manifests
+│   ├── namespace.yaml
+│   ├── configmap.yaml
+│   ├── secret.yaml
+│   ├── postgres-deployment.yaml
+│   ├── redis-deployment.yaml
+│   ├── app-deployment.yaml
+│   ├── app-service.yaml
+│   ├── ingress.yaml
+│   └── hpa.yaml
+├── Dockerfile                             # Multi-stage Docker build
+├── .dockerignore                          # Docker build exclusions
+├── docker-compose.yml                     # Multi-container setup
+├── deploy.sh                              # Automated deployment script
+├── pom.xml                                # Maven dependencies
+├── README.md                              # This file
+├── TRAINING_GUIDE.md                      # Learning exercises
+├── DOCKER_K8S_GUIDE.md                    # Docker/K8s deployment guide
+├── K8S_QUICK_REFERENCE.md                 # Kubectl cheat sheet
+├── DOCKER_K8S_EXERCISES.md                # Hands-on exercises
+└── QUICK_REFERENCE.md                     # Quick commands reference
+```
+
+---
 
 ---
 

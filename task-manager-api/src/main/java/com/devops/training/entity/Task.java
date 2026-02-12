@@ -44,10 +44,13 @@ public class Task implements Serializable {
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
+    // TODO: might want to add assignee field later
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
+        // set defaults if not provided
         if (status == null) {
             status = TaskStatus.TODO;
         }
@@ -62,10 +65,16 @@ public class Task implements Serializable {
     }
 
     public enum TaskStatus {
-        TODO, IN_PROGRESS, COMPLETED, CANCELLED
+        TODO, 
+        IN_PROGRESS, 
+        COMPLETED, 
+        CANCELLED
     }
 
     public enum TaskPriority {
-        LOW, MEDIUM, HIGH, CRITICAL
+        LOW, 
+        MEDIUM, 
+        HIGH, 
+        CRITICAL
     }
 }

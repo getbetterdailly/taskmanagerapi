@@ -34,7 +34,8 @@ public class TaskService {
 
     public List<TaskDTO> getAllTasks() {
         log.info("Fetching all tasks from database");
-        return taskRepository.findAll().stream()
+        List<Task> tasks = taskRepository.findAll();
+        return tasks.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -42,7 +43,8 @@ public class TaskService {
     @Cacheable(value = "tasksByStatus", key = "#status")
     public List<TaskDTO> getTasksByStatus(TaskStatus status) {
         log.info("Fetching tasks by status: {}", status);
-        return taskRepository.findByStatusOrderByCreatedAtDesc(status).stream()
+        List<Task> tasks = taskRepository.findByStatusOrderByCreatedAtDesc(status);
+        return tasks.stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -71,6 +73,7 @@ public class TaskService {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found with id: " + id));
         
+        // update fields
         existingTask.setTitle(taskDTO.getTitle());
         existingTask.setDescription(taskDTO.getDescription());
         existingTask.setStatus(taskDTO.getStatus());
@@ -96,6 +99,7 @@ public class TaskService {
         return taskRepository.count();
     }
 
+    // helper methods for mapping
     private TaskDTO mapToDTO(Task task) {
         TaskDTO dto = new TaskDTO();
         dto.setId(task.getId());
